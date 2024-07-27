@@ -40,6 +40,10 @@ typedef struct Food {
     Color color;
 } Food;
 
+Texture2D snakesheet;
+
+Rectangle sourceFruit = (Rectangle){0, 192, 64, 64};
+
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
@@ -75,6 +79,8 @@ int main(void)
     // Initialization (Note windowTitle is unused on Android)
     //---------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "classic game: snake");
+
+    snakesheet = LoadTexture("snake-graphics.png");
 
     InitGame();
 
@@ -186,10 +192,10 @@ void UpdateGame(void)
                         snake[0].position.y += snake[0].speed.y;
                         allowMove = true;
 
-                        if ((snake[0].position.x) > (screenWidth - offset.x)) snake[0].position.x = offset.x/2.;
-                        else if ((snake[0].position.y) > (screenHeight - offset.y)) snake[0].position.y = offset.y/2;
-                        else if (snake[0].position.x < 0) snake[0].position.x = SQUARE_SIZE*(offset.x-1) + offset.x/2.;
-                        else if (snake[0].position.y < 0) snake[0].position.y = SQUARE_SIZE*(offset.y-3)+ offset.y/2.;
+                        if ((snake[0].position.x) >= (screenWidth - offset.x)) snake[0].position.x = offset.x/2.;
+                        else if ((snake[0].position.y) >= (screenHeight - offset.y)) snake[0].position.y = offset.y/2;
+                        else if (snake[0].position.x <= 0) snake[0].position.x = SQUARE_SIZE*(offset.x-1) + offset.x/2.;
+                        else if (snake[0].position.y <= 0) snake[0].position.y = SQUARE_SIZE*(offset.y-3)+ offset.y/2.;
 
                     }
                     else snake[i].position = snakePosition[i-1];
@@ -272,8 +278,8 @@ void DrawGame(void)
             for (int i = 0; i < counterTail; i++) DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
 
             // Draw fruit to pick
-            DrawRectangleV(fruit.position, fruit.size, fruit.color);
-
+	    Rectangle test = (Rectangle){fruit.position.x*2, fruit.position.y*2, SQUARE_SIZE, SQUARE_SIZE};
+	    DrawTexturePro(snakesheet, sourceFruit, test, (Vector2){fruit.position.x, fruit.position.y}, 0, WHITE);
             if (pause) DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
         else DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
