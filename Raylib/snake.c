@@ -41,17 +41,28 @@ typedef struct Food {
 } Food;
 
 Texture2D snakesheet;
-
-Rectangle sourceFruit = (Rectangle){3, 191, 64, 64};
-Rectangle sourceFaceUp = (Rectangle){192, 0, 64, 64};
-Rectangle sourceFaceDown = (Rectangle){256, 64, 64, 64};
-Rectangle sourceFaceLeft = (Rectangle){192, 64, 64, 64};
-Rectangle sourceFaceRight = (Rectangle){257, 0, 63, 64};
-Rectangle sourceBodyHor = (Rectangle){64, 0, 64, 64};
-Rectangle sourceBodyVer = (Rectangle){128, 64, 64, 64};
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
+
+static Rectangle sourceFruit = (Rectangle){3, 191, 64, 64};
+static Rectangle sourceFaceUp = (Rectangle){192, 0, 64, 64};
+static Rectangle sourceFaceDown = (Rectangle){256, 64, 64, 64};
+static Rectangle sourceFaceLeft = (Rectangle){192, 64, 64, 64};
+static Rectangle sourceFaceRight = (Rectangle){257, 0, 63, 64};
+static Rectangle sourceBodyHor = (Rectangle){64, 0, 64, 64};
+static Rectangle sourceBodyVer = (Rectangle){128, 64, 64, 64};
+static Rectangle sourceTurnDR = (Rectangle){0, 0, 64, 64};
+static Rectangle sourceTurnUR = (Rectangle){0, 64, 64, 64};
+static Rectangle sourceTurnDL = (Rectangle){128, 0, 64, 64};
+static Rectangle sourceTurnUL = (Rectangle){128, 128, 64, 64};
+static Rectangle sourceTailUp = (Rectangle){192, 128, 64, 64};
+static Rectangle sourceTailDown = (Rectangle){256, 192, 64, 64};
+static Rectangle sourceTailLeft = (Rectangle){193, 192, 63, 64};
+static Rectangle sourceTailRight = (Rectangle){256, 128, 64, 64};
+
+
+
 static const int screenWidth = 800;
 static const int screenHeight = 450;
 
@@ -125,7 +136,7 @@ void InitGame(void)
     gameOver = false;
     pause = false;
 
-    counterTail = 1;
+    counterTail = 3;
     allowMove = false;
     framesToMove = 15;
 
@@ -134,7 +145,7 @@ void InitGame(void)
 
     for (int i = 0; i < SNAKE_LENGTH; i++)
     {
-        snake[i].position = (Vector2){ offset.x/2, offset.y/2 };
+        snake[i].position = (Vector2){10*SQUARE_SIZE + offset.x/2, 4*SQUARE_SIZE + offset.y/2 };
         snake[i].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
         snake[i].speed = (Vector2){ SQUARE_SIZE, 0 };
 
@@ -292,10 +303,24 @@ void DrawGame(void)
 	        DrawTexturePro(snakesheet, sourceFaceUp, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
             for (int i = 1; i < counterTail; i++){
 	        snakePos = (Rectangle){snake[i].position.x*2, snake[i].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
-	        if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE)
-		    DrawTexturePro(snakesheet, sourceBodyHor, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		else if(snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
-		    DrawTexturePro(snakesheet, sourceBodyVer, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+	        if(i == counterTail-1){
+		    //Draw tail according to the speed
+		    if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE)
+		        DrawTexturePro(snakesheet, sourceTailLeft, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else if(snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE)
+		        DrawTexturePro(snakesheet, sourceTailRight, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+	            else if(snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
+		        DrawTexturePro(snakesheet, sourceTailDown, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else 
+		        DrawTexturePro(snakesheet, sourceTailUp, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		}
+		else{		
+		
+		    if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE)
+		        DrawTexturePro(snakesheet, sourceBodyHor, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else if(snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
+		        DrawTexturePro(snakesheet, sourceBodyVer, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+	        }
 	    }
 
             // Draw fruit to pick
