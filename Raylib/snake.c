@@ -29,6 +29,7 @@
 typedef struct Snake {
     Vector2 position;
     Vector2 size;
+    Vector2 prevSpeed;
     Vector2 speed;
     Color color;
 } Snake;
@@ -147,7 +148,8 @@ void InitGame(void)
     {
         snake[i].position = (Vector2){10*SQUARE_SIZE + offset.x/2, 4*SQUARE_SIZE + offset.y/2 };
         snake[i].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
-        snake[i].speed = (Vector2){ SQUARE_SIZE, 0 };
+        snake[i].prevSpeed = (Vector2){ SQUARE_SIZE, 0 };
+	snake[i].speed = snake[i].prevSpeed;
 
         if (i == 0) snake[i].color = DARKBLUE;
         else snake[i].color = BLUE;
@@ -204,9 +206,10 @@ void UpdateGame(void)
             
                 for (int i = 0; i < counterTail; i++)
                 {
+	 	    snake[i].prevSpeed = snake[i].speed;	
                     if (i == 0)
                     {
-
+                        
                         snake[0].position.x += snake[0].speed.x;
                         snake[0].position.y += snake[0].speed.y;
 
@@ -293,49 +296,57 @@ void DrawGame(void)
             }
 
             // Draw snake
-	    	    
+           printf("%f ",fruit.position.y);
 	    Rectangle snakePos = (Rectangle){snake[0].position.x*2, snake[0].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
-            if(snake[0].speed.x > 0)
+            if(snake[0].prevSpeed.x > 0)
 		DrawTexturePro(snakesheet, sourceFaceRight, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
-            else if(snake[0].speed.x < 0)
+            else if(snake[0].prevSpeed.x < 0)
 	    	DrawTexturePro(snakesheet, sourceFaceLeft, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
-            else if(snake[0].speed.y > 0)
+            else if(snake[0].prevSpeed.y > 0)
 	        DrawTexturePro(snakesheet, sourceFaceDown, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
 	    else
 	        DrawTexturePro(snakesheet, sourceFaceUp, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
 	    for (int i = 1; i < counterTail; i++){
-	        snakePos = (Rectangle){snake[i].position.x*2, snake[i].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
+	        bool outbound_right = (snake[i].position.x - snake[i-1].position.x > 4*SQUARE_SIZE);
+	        bool outbound_left = (snake[i].position.x - snake[i-1].position.x < -4*SQUARE_SIZE);
+	        bool outbound_up = (snake[i].position.y - snake[i-1].position.y < -4*SQUARE_SIZE);
+	        bool outbound_down = (snake[i].position.y - snake[i-1].position.y > 4*SQUARE_SIZE);
+	        bool outbound_left_post = (snake[i+1].position.x - snake[i].position.x > 4*SQUARE_SIZE);
+		bool outbound_right_post = (snake[i+1].position.x - snake[i].position.x < -4*SQUARE_SIZE);
+		bool outbound_down_post = (snake[i+1].position.y - snake[i].position.y < -4*SQUARE_SIZE);
+		bool outbound_up_post = (snake[i+1].position.y - snake[i].position.y > 4*SQUARE_SIZE);
+		    
+		snakePos = (Rectangle){snake[i].position.x*2, snake[i].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
 	        if(i == counterTail-1){
 		    //Draw tail according to the speed
-		    if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE)
+		    if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left)
 		        DrawTexturePro(snakesheet, sourceTailLeft, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		    else if(snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE)
+		    else if(snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right)
 		        DrawTexturePro(snakesheet, sourceTailRight, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-	            else if(snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
+	            else if(snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_down)
 		        DrawTexturePro(snakesheet, sourceTailDown, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
 		    else 
 		        DrawTexturePro(snakesheet, sourceTailUp, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
 		}
 		else{		
 		    //Turning body
-		    bool outbound_right = snake[i].position.x - snake[i-1].position.x > 4*SQUARE_SIZE;
-		    bool outbound_left = snake[i].position.x - snake[i-1].position.x < -4*SQUARE_SIZE;
-		    bool outbound_up = snake[i].position.y - snake[i-1].position.y < -4*SQUARE_SIZE;
-		    bool outbound_down = snake[i].position.y - snake[i-1].position.y > 4*SQUARE_SIZE;
-
-		    printf("%d",(outbound_up));
-		    if((snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left) && (snake[i+1].position.y == snake[i].position.y - SQUARE_SIZE) || (snake[i+1].position.x == snake[i].position.x - SQUARE_SIZE ) && (snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || outbound_down))
-		        DrawTexturePro(snakesheet, sourceTurnUL, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		    else if((snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left) && snake[i+1].position.y == snake[i].position.y + SQUARE_SIZE || snake[i+1].position.x == snake[i].position.x - SQUARE_SIZE && snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
-		        DrawTexturePro(snakesheet, sourceTurnDL, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		    else if((snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right) && snake[i+1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i+1].position.x == snake[i].position.x + SQUARE_SIZE && snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE)
-		        DrawTexturePro(snakesheet, sourceTurnUR, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		    else if((snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right) && snake[i+1].position.y == snake[i].position.y + SQUARE_SIZE || snake[i+1].position.x == snake[i].position.x + SQUARE_SIZE && snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
-		        DrawTexturePro(snakesheet, sourceTurnDR, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		   
+		    if((snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left) && (snake[i+1].position.y == snake[i].position.y - SQUARE_SIZE || outbound_up_post) || (snake[i+1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left_post) && (snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || outbound_up))
+		        //UpLeft
+			DrawTexturePro(snakesheet, sourceTurnUL, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else if((snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left) && (snake[i+1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_down_post) || (snake[i+1].position.x == snake[i].position.x - SQUARE_SIZE || outbound_left_post) && (snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_down))
+		        //DownLeft
+			DrawTexturePro(snakesheet, sourceTurnDL, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else if((snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right) && (snake[i+1].position.y == snake[i].position.y - SQUARE_SIZE || outbound_up_post) || (snake[i+1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right_post) && (snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || outbound_up))
+		        //UpRight
+			DrawTexturePro(snakesheet, sourceTurnUR, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
+		    else if((snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right) && (snake[i+1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_down_post) || (snake[i+1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_right_post) && (snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_down))
+		        //DownRight
+			DrawTexturePro(snakesheet, sourceTurnDR, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
 		    //Straight body	
-		    else if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE)
+		    else if(snake[i-1].position.x == snake[i].position.x - SQUARE_SIZE || snake[i-1].position.x == snake[i].position.x + SQUARE_SIZE || outbound_left || outbound_right)
 		        DrawTexturePro(snakesheet, sourceBodyHor, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
-		    else if(snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE)
+		    else if(snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_up || outbound_down)
 		        DrawTexturePro(snakesheet, sourceBodyVer, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
 	        }
 	    }
