@@ -10,8 +10,9 @@
 *   Copyright (c) 2015 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
-
+#include <stdlib.h>
 #include "raylib.h"
+#include <stdio.h>
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -67,6 +68,7 @@ static Rectangle sourceTailRight = (Rectangle){256, 128, 64, 64};
 static const int screenWidth = 800;
 static const int screenHeight = 450;
 
+static int score = 0;
 static int framesCounter = 0;
 static bool gameOver = false;
 static bool pause = false;
@@ -136,10 +138,10 @@ void InitGame(void)
     framesCounter = 0;
     gameOver = false;
     pause = false;
-
+    score = 0;
     counterTail = 3;
     allowMove = false;
-    framesToMove = 15;
+    framesToMove = 14;
 
     offset.x = screenWidth%SQUARE_SIZE;
     offset.y = screenHeight%SQUARE_SIZE;
@@ -175,22 +177,22 @@ void UpdateGame(void)
         if (!pause)
         {
             // Player control
-            if (IsKeyPressed(KEY_RIGHT) && (snake[0].speed.x == 0) && allowMove)
+            if ((IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) && (snake[0].speed.x == 0) && allowMove)
             {
                 snake[0].speed = (Vector2){ SQUARE_SIZE, 0 };
                 allowMove = false;
             }
-            if (IsKeyPressed(KEY_LEFT) && (snake[0].speed.x == 0) && allowMove)
+            if ((IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) && (snake[0].speed.x == 0) && allowMove)
             {
                 snake[0].speed = (Vector2){ -SQUARE_SIZE, 0 };
                 allowMove = false;
             }
-            if (IsKeyPressed(KEY_UP) && (snake[0].speed.y == 0) && allowMove)
+            if ((IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) && (snake[0].speed.y == 0) && allowMove)
             {
                 snake[0].speed = (Vector2){ 0, -SQUARE_SIZE };
                 allowMove = false;
             }
-            if (IsKeyPressed(KEY_DOWN) && (snake[0].speed.y == 0) && allowMove)
+            if ((IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) && (snake[0].speed.y == 0) && allowMove)
             {
                 snake[0].speed = (Vector2){ 0, SQUARE_SIZE };
                 allowMove = false;
@@ -257,8 +259,9 @@ void UpdateGame(void)
             {
                 snake[counterTail].position = snakePosition[counterTail - 1];
                 counterTail += 1;
-                if(framesToMove > 5) framesToMove--; //Make the snake fo faster when picking fruit.
+                if(framesToMove > 8) framesToMove--; //Make the snake fo faster when picking fruit.
                 fruit.active = false;
+		score += 1;
             }
 
             framesCounter++;
@@ -279,11 +282,15 @@ void UpdateGame(void)
 void DrawGame(void)
 {
     BeginDrawing();
-
+    char scorechar[3];
         ClearBackground(RAYWHITE);
-
+          
         if (!gameOver)
         {
+
+	    sprintf(scorechar, "%d", score);
+            DrawText(scorechar, screenWidth/2-22, screenHeight/2-4, 100, GRAY);
+
             // Draw grid lines
             for (int i = 0; i < screenWidth/SQUARE_SIZE + 1; i++)
             {
@@ -296,7 +303,6 @@ void DrawGame(void)
             }
 
             // Draw snake
-           printf("%f ",fruit.position.y);
 	    Rectangle snakePos = (Rectangle){snake[0].position.x*2, snake[0].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
             if(snake[0].prevSpeed.x > 0)
 		DrawTexturePro(snakesheet, sourceFaceRight, snakePos, (Vector2){snake[0].position.x, snake[0].position.y}, 0, WHITE);
