@@ -23,7 +23,7 @@
 //----------------------------------------------------------------------------------
 #define SNAKE_LENGTH   256
 #define SQUARE_SIZE     31
-
+#define DEATH_SIZE 1
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -41,6 +41,12 @@ typedef struct Food {
     bool active;
     Color color;
 } Food;
+
+typedef struct DeathBlock {
+    Vector2 position;
+    Vector2 size;
+    Color color;
+} DeathBlock;
 
 Texture2D snakesheet;
 //------------------------------------------------------------------------------------
@@ -80,6 +86,7 @@ static Vector2 snakePosition[SNAKE_LENGTH] = { 0 };
 static bool allowMove = false;
 static Vector2 offset = { 0 };
 static int counterTail = 0;
+static DeathBlock death[DEATH_SIZE] = {0};
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -133,7 +140,7 @@ int main(void)
 //------------------------------------------------------------------------------------
 
 // Initialize game variables
-void InitGame(void)
+void InitGame()
 {
     framesCounter = 0;
     gameOver = false;
@@ -165,7 +172,13 @@ void InitGame(void)
     fruit.size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
     fruit.color = SKYBLUE;
     fruit.active = false;
-}
+   	
+    death[0].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
+    death[0].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    death[0].color = RED;
+    
+   
+   }
 
 // Update game (one frame)
 void UpdateGame(void)
@@ -263,6 +276,11 @@ void UpdateGame(void)
                 fruit.active = false;
 		score += 1;
             }
+	    for(int i = 0 ; i < DEATH_SIZE; i++){
+	    if ((snake[0].position.x < (death[i].position.x + death[i].size.x) && (snake[0].position.x + snake[0].size.x) > death[i].position.x) &&
+                (snake[0].position.y < (death[i].position.y + death[i].size.y) && (snake[0].position.y + snake[0].size.y) > death[i].position.y))
+	    	gameOver = true;
+	    }
 
             framesCounter++;
         }
@@ -355,6 +373,10 @@ void DrawGame(void)
 		    else if(snake[i-1].position.y == snake[i].position.y - SQUARE_SIZE || snake[i-1].position.y == snake[i].position.y + SQUARE_SIZE || outbound_up || outbound_down)
 		        DrawTexturePro(snakesheet, sourceBodyVer, snakePos, (Vector2){snake[i].position.x, snake[i].position.y}, 0, WHITE);
 	        }
+	    }
+	    //Draw death blocks
+	    for(int i = 0; i<DEATH_SIZE; i++){
+	    	 DrawRectangleV(death[i].position, death[i].size, death[i].color);
 	    }
 
             // Draw fruit to pick
