@@ -23,7 +23,7 @@
 //----------------------------------------------------------------------------------
 #define SNAKE_LENGTH   256
 #define SQUARE_SIZE     31
-#define DEATH_SIZE 1
+#define DEATH_SIZE 4
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -176,7 +176,19 @@ void InitGame()
     death[0].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
     death[0].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
     death[0].color = RED;
+    death[1].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
+    death[1].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    death[1].color = RED;
+    death[2].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
+    death[2].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    death[2].color = RED;
+    death[3].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
+    death[3].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    death[3].color = RED;
     
+
+
+
    
    }
 
