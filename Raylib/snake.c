@@ -264,8 +264,17 @@ void UpdateGame(void)
             if (!fruit.active)
             {
                 fruit.active = true;
-                fruit.position = (Vector2){ GetRandomValue(0, (screenWidth/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.x/2, GetRandomValue(0, (screenHeight/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.y/2 };
-
+		bool inDeathBlock = true;
+		while(inDeathBlock){
+		    inDeathBlock = false;
+		    fruit.position = (Vector2){ GetRandomValue(0, (screenWidth/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.x/2, GetRandomValue(0, (screenHeight/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.y/2 };
+		    for(int i = 0; i < DEATH_SIZE; i++){
+		    	if(fruit.position.x  == death[i].position.x && fruit.position.y  == death[i].position.y){
+			    inDeathBlock = true;
+			    break;
+		    	}
+		    }
+		}
 
                 for (int i = 0; i < counterTail; i++)
                 {
