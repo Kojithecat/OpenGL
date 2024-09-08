@@ -23,7 +23,8 @@
 //----------------------------------------------------------------------------------
 #define SNAKE_LENGTH   256
 #define SQUARE_SIZE     31
-#define DEATH_SIZE 4
+#define DEATH_SIZE 10
+#define NUM_LEVELS 3
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -87,7 +88,7 @@ static bool allowMove = false;
 static Vector2 offset = { 0 };
 static int counterTail = 0;
 static DeathBlock death[DEATH_SIZE] = {0};
-
+static int currentLevel = 0;
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
 //------------------------------------------------------------------------------------
@@ -139,6 +140,66 @@ int main(void)
 // Module Functions Definitions (local)
 //------------------------------------------------------------------------------------
 
+void putDeathBlocks(int lvl)
+{
+    switch(lvl)
+    {
+        
+	case 2:
+
+            death[0].position = (Vector2) {5*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[0].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[0].color = RED;
+            death[1].position = (Vector2) {6*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[1].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[1].color = RED;
+   	    death[2].position = (Vector2) {7*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[2].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[2].color = RED;
+    	    death[3].position = (Vector2) {8*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[3].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[3].color = RED;
+            death[4].position = (Vector2) {12*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[4].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[4].color = RED;
+            death[5].position = (Vector2) {13*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[5].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[5].color = RED;
+   	    death[6].position = (Vector2) {17*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[6].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[6].color = RED;
+    	    death[7].position = (Vector2) {18*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[7].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[7].color = RED;
+            death[8].position = (Vector2) {19*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[8].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[8].color = RED;
+            death[9].position = (Vector2) {20*SQUARE_SIZE + offset.x/2, 7*SQUARE_SIZE + offset.y/2};
+    	    death[9].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[9].color = RED;
+	    break;
+	case 1:
+            
+	    death[0].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
+    	    death[0].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[0].color = RED;
+            death[1].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
+    	    death[1].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[1].color = RED;
+   	    death[2].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
+    	    death[2].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[2].color = RED;
+    	    death[3].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
+    	    death[3].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
+    	    death[3].color = RED;
+            break;
+	    
+	    
+
+
+    }
+}
+
 // Initialize game variables
 void InitGame()
 {
@@ -172,25 +233,8 @@ void InitGame()
     fruit.size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
     fruit.color = SKYBLUE;
     fruit.active = false;
-   	
-    death[0].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
-    death[0].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
-    death[0].color = RED;
-    death[1].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 3*SQUARE_SIZE + offset.y/2};
-    death[1].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
-    death[1].color = RED;
-    death[2].position = (Vector2) {3*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
-    death[2].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
-    death[2].color = RED;
-    death[3].position = (Vector2) {21*SQUARE_SIZE + offset.x/2, 10*SQUARE_SIZE + offset.y/2};
-    death[3].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE};
-    death[3].color = RED;
-    
-
-
-
-   
-   }
+    putDeathBlocks(currentLevel); 
+}
 
 // Update game (one frame)
 void UpdateGame(void)
@@ -250,7 +294,18 @@ void UpdateGame(void)
                 }
             }
 
-
+	    if(score >= 10)
+	    {
+	    	if(currentLevel < NUM_LEVELS -1){
+		currentLevel++;
+		InitGame();
+		}	
+	    	else{
+		// You win the game
+		gameOver = true;//placeholder
+		}
+	    
+	    }
 
 
 
@@ -321,15 +376,11 @@ void UpdateGame(void)
 void DrawGame(void)
 {
     BeginDrawing();
-    char scorechar[3];
+    char scorechar[30];
         ClearBackground(RAYWHITE);
           
         if (!gameOver)
         {
-
-	    sprintf(scorechar, "%d", score);
-            DrawText(scorechar, screenWidth/2-22, screenHeight/2-4, 100, GRAY);
-
             // Draw grid lines
             for (int i = 0; i < screenWidth/SQUARE_SIZE + 1; i++)
             {
@@ -340,6 +391,10 @@ void DrawGame(void)
             {
                 DrawLineV((Vector2){offset.x/2, SQUARE_SIZE*i + offset.y/2}, (Vector2){screenWidth - offset.x/2, SQUARE_SIZE*i + offset.y/2}, LIGHTGRAY);
             }
+	    //Draw text
+	    sprintf(scorechar, "Level %d | Score: %d", currentLevel, score);
+            DrawText(scorechar, 70, screenHeight - 75, 75, GRAY);
+
 
             // Draw snake
 	    Rectangle snakePos = (Rectangle){snake[0].position.x*2, snake[0].position.y*2, SQUARE_SIZE, SQUARE_SIZE};
