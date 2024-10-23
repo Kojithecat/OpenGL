@@ -116,7 +116,7 @@ void initGrid(){
 	}
     }
     //Fill the bomb cells
-    srand(42);
+    srand(time(NULL));
     int remainingMines = numMines;
     while(remainingMines > 0){
         int x = rand() % gridSize;
@@ -144,7 +144,54 @@ void initGrid(){
     }
 }
 
+void recursivelyReveal(int x,int y){
+    printf("%d, %d", x, y);
+    fflush(stdout);
+    grid[x][y].isRevealed = 1;
+    if(grid[x][y].adjacentMines == 0){
+        
+	int top = y == 0;
+	int bottom = y == gridSize-1;
+	int left = x == 0;
+	int right = x == gridSize-1;
+
+      
+	if(!right && !bottom && !grid[x+1][y+1].isRevealed)  recursivelyReveal(x+1,y+1);
+	if(!right && !grid[x+1][y].isRevealed)               recursivelyReveal(x+1,y);
+	if(!right && !top && !grid[x+1][y-1].isRevealed)     recursivelyReveal(x+1,y-1);
+	if(!bottom && !grid[x][y+1].isRevealed)              recursivelyReveal(x,y+1);
+	if(!top && !grid[x][y-1].isRevealed)                 recursivelyReveal(x,y-1);
+
+        if(!left && !bottom && !grid[x-1][y+1].isRevealed)   recursivelyReveal(x-1,y+1);
+        if(!left && !grid[x-1][y].isRevealed)                recursivelyReveal(x-1,y);
+        if(!left && !top && !grid[x-1][y-1].isRevealed)      recursivelyReveal(x-1,y-1);
+    }
+}
+
 void updateGrid(){
+    
+   if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+   	Vector2 mousePos = GetMousePosition();
+	int x = mousePos.x / CELL_SIZE;
+        int y = mousePos.y / CELL_SIZE;
+
+	grid[x][y].isRevealed = 1;
+	if(grid[x][y].isMine) 
+	    winCondition = 2;
+
+	if(!grid[x][y].isFlagged) 
+            recursivelyReveal(x,y);
+
+   }
+
+  if(IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)){
+   	Vector2 mousePos = GetMousePosition();
+	int x = mousePos.x / CELL_SIZE;
+        int y = mousePos.y / CELL_SIZE;
+
+	if(!grid[x][y].isRevealed)
+	    grid[x][y].isFlagged = !grid[x][y].isFlagged;
+   }
 
 }
 
@@ -211,7 +258,7 @@ int main(void)
 	fflush(stdout);
 	SetWindowSize(CELL_SIZE * gridSize, CELL_SIZE * gridSize);
 
-	while(!winCondition)
+	while(winCondition != 1)
 	{
 	    //printf("grid post");
      	    //fflush(stdout);
@@ -219,16 +266,20 @@ int main(void)
 	    BeginDrawing();
     	    ClearBackground(RAYWHITE);
             drawGrid();
+	    if(winCondition == 2)
+                DrawText("WASTED", CELL_SIZE*gridSize/2- 30, CELL_SIZE*gridSize/2, 40, RED);
 	    EndDrawing();
 	}
 	freeGrid();
-        
+
+	if(winCondition == 2){	
 	BeginDrawing();
     	ClearBackground(RAYWHITE);
 
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            DrawText("You lost", CELL_SIZE*gridSize/2, CELL_SIZE*gridSize/2, 20, BLACK);
 
         EndDrawing();
+	}
         //----------------------------------------------------------------------------------
     }
 
