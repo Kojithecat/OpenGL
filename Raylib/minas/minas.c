@@ -37,6 +37,7 @@ int padding = 64;
 int numMines;
 int gridSize;
 int winCondition;
+//double time = 0.0; 
 
 void drawMenuScreen(){
     
@@ -251,14 +252,14 @@ int main(void)
             drawMenuScreen();
 	    EndDrawing();
 	}		
-	printf("Hii"); 
-	fflush(stdout);
+	//printf("Hii"); 
+	//fflush(stdout);
         initGrid();
-	printf("grid Done");
-	fflush(stdout);
-	SetWindowSize(CELL_SIZE * gridSize, CELL_SIZE * gridSize);
+	//printf("grid Done");
+	//fflush(stdout);
+	SetWindowSize(CELL_SIZE * gridSize, CELL_SIZE * (gridSize+1));
 
-	while(winCondition != 1)
+	while(winCondition == 0)
 	{
 	    //printf("grid post");
      	    //fflush(stdout);
@@ -266,21 +267,27 @@ int main(void)
 	    BeginDrawing();
     	    ClearBackground(RAYWHITE);
             drawGrid();
-	    if(winCondition == 2)
-                DrawText("WASTED", CELL_SIZE*gridSize/2- 30, CELL_SIZE*gridSize/2, 40, RED);
 	    EndDrawing();
+	    
+	}
+        while(winCondition == 2){
+	    //printf("grid lost");
+	    //fflush(stdout);
+	    int loseTextSize = MeasureText("WASTED", 40);
+	    Rectangle background = {CELL_SIZE*gridSize/2-loseTextSize/2-20, CELL_SIZE*gridSize/2-20, loseTextSize +40, 80};
+	    BeginDrawing();
+	    DrawRectangleRec( background, BLACK);
+            DrawText("WASTED", CELL_SIZE*gridSize/2-loseTextSize/2, CELL_SIZE*gridSize/2, 40, RED);
+            DrawText("Press R to restart", CELL_SIZE*gridSize-MeasureText("Press R to restart", 30) -10, CELL_SIZE*gridSize+10, 30, BLACK);
+	    EndDrawing();
+	    if(IsKeyPressed(KEY_R)){
+		printf("repeat");
+		fflush(stdout);
+	    	initGrid();
+		winCondition = 0;
+	    }
 	}
 	freeGrid();
-
-	if(winCondition == 2){	
-	BeginDrawing();
-    	ClearBackground(RAYWHITE);
-
-            DrawText("You lost", CELL_SIZE*gridSize/2, CELL_SIZE*gridSize/2, 20, BLACK);
-
-        EndDrawing();
-	}
-        //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
